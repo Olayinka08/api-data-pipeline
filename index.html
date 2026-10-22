@@ -1,0 +1,1086 @@
+<title>API Pipeline Dashboard</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<style>
+/* ── Token system ──────────────────────────────────────────────────── */
+/* Layout: sticky header + 3-col stat row + tabbed data panels        */
+:root {
+  --bg:          #0f1117;
+  --bg-surface:  #171b26;
+  --bg-card:     #1e2332;
+  --bg-hover:    #252b3d;
+  --border:      #2c3348;
+  --fg:          #e2e8f4;
+  --fg-muted:    #7a8aaa;
+  --fg-dim:      #4a5570;
+  --accent:      #4f8ef7;
+  --accent-glow: rgba(79,142,247,0.15);
+  --pass:        #34d399;
+  --warn:        #fbbf24;
+  --fail:        #f87171;
+  --weather-hue: #60b8f0;
+  --countries-hue:#a78bfa;
+  --fx-hue:      #f0a060;
+  --mono:        'JetBrains Mono', 'Courier New', monospace;
+  --sans:        'Inter', system-ui, sans-serif;
+  color-scheme:  dark;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg:          #f0f3fa;
+    --bg-surface:  #ffffff;
+    --bg-card:     #f8f9fd;
+    --bg-hover:    #eef1f8;
+    --border:      #dce2f0;
+    --fg:          #1a2038;
+    --fg-muted:    #5a6888;
+    --fg-dim:      #9aa4bf;
+    --accent:      #2563eb;
+    --accent-glow: rgba(37,99,235,0.12);
+    --pass:        #059669;
+    --warn:        #d97706;
+    --fail:        #dc2626;
+    --weather-hue: #2563eb;
+    --countries-hue:#7c3aed;
+    --fx-hue:      #c2410c;
+    color-scheme:  light;
+  }
+}
+:root[data-theme="light"] {
+  --bg:          #f0f3fa;
+  --bg-surface:  #ffffff;
+  --bg-card:     #f8f9fd;
+  --bg-hover:    #eef1f8;
+  --border:      #dce2f0;
+  --fg:          #1a2038;
+  --fg-muted:    #5a6888;
+  --fg-dim:      #9aa4bf;
+  --accent:      #2563eb;
+  --accent-glow: rgba(37,99,235,0.12);
+  --pass:        #059669;
+  --warn:        #d97706;
+  --fail:        #dc2626;
+  --weather-hue: #2563eb;
+  --countries-hue:#7c3aed;
+  --fx-hue:      #c2410c;
+  color-scheme:  light;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0 }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--fg);
+  min-height: 100%;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────── */
+.site-header {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 20;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 max(24px, env(safe-area-inset-left, 0px));
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  background: var(--bg-surface);
+  z-index: 21;
+}
+
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: 56px;
+}
+
+.wordmark {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+}
+
+.pipeline-icon {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.pipe-node {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.pipe-node.b { background: #f87171; }
+.pipe-node.s { background: #fbbf24; }
+.pipe-node.g { background: var(--pass); }
+
+.pipe-line {
+  width: 12px;
+  height: 1.5px;
+  background: var(--border);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--fg-muted);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 10px;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--pass);
+  box-shadow: 0 0 6px var(--pass);
+}
+
+.status-dot.warn { background: var(--warn); box-shadow: 0 0 6px var(--warn); }
+.status-dot.fail { background: var(--fail); box-shadow: 0 0 6px var(--fail); }
+
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--fg-muted);
+  cursor: pointer;
+  padding: 6px 8px;
+  font-size: 14px;
+  line-height: 1;
+  transition: border-color 0.15s, color 0.15s;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── Main layout ─────────────────────────────────────────────────────── */
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-block: 28px;
+}
+
+/* ── Stat tiles ─────────────────────────────────────────────────────── */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.stat-tile {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-tile::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  border-radius: 10px 10px 0 0;
+}
+
+.stat-tile.weather::before  { background: var(--weather-hue); }
+.stat-tile.countries::before{ background: var(--countries-hue); }
+.stat-tile.fx::before       { background: var(--fx-hue); }
+.stat-tile.quality::before  { background: var(--pass); }
+.stat-tile.sources::before  { background: var(--accent); }
+
+.tile-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--fg-muted);
+  margin-bottom: 8px;
+}
+
+.tile-value {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 4px;
+}
+
+.tile-value.weather  { color: var(--weather-hue); }
+.tile-value.countries{ color: var(--countries-hue); }
+.tile-value.fx       { color: var(--fx-hue); }
+.tile-value.quality  { color: var(--pass); }
+.tile-value.sources  { color: var(--accent); }
+
+.tile-sub {
+  font-size: 12px;
+  color: var(--fg-muted);
+}
+
+/* ── Tabs ─────────────────────────────────────────────────────────── */
+.tab-bar {
+  display: flex;
+  gap: 2px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tab-btn {
+  flex: 1;
+  min-width: 100px;
+  background: none;
+  border: none;
+  border-radius: 7px;
+  padding: 8px 16px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.tab-btn:hover { background: var(--bg-hover); color: var(--fg); }
+
+.tab-btn.active {
+  background: var(--bg-card);
+  color: var(--fg);
+  border: 1px solid var(--border);
+}
+
+.tab-btn.active.weather   { color: var(--weather-hue); }
+.tab-btn.active.countries { color: var(--countries-hue); }
+.tab-btn.active.fx        { color: var(--fx-hue); }
+.tab-btn.active.quality   { color: var(--pass); }
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── Section header ─────────────────────────────────────────────────── */
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.section-meta {
+  font-size: 12px;
+  color: var(--fg-muted);
+}
+
+/* ── Cards grid ─────────────────────────────────────────────────────── */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+/* ── City card ─────────────────────────────────────────────────────── */
+.city-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  transition: background 0.1s;
+}
+
+.city-card:hover { background: var(--bg-hover); }
+
+.city-name {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--fg-muted);
+  margin-bottom: 8px;
+}
+
+.city-temp {
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--weather-hue);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.city-temp .unit {
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--fg-muted);
+}
+
+.city-wind {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--fg-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Temp bar */
+.temp-bar-wrap {
+  margin-top: 10px;
+  height: 4px;
+  background: var(--bg-card);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.temp-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--weather-hue);
+  transition: width 0.6s ease;
+}
+
+/* ── Country table ─────────────────────────────────────────────────── */
+.data-table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); }
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.data-table th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--fg-muted);
+  padding: 10px 14px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.data-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--fg);
+  vertical-align: middle;
+  min-width: 0;
+}
+
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tbody tr { background: var(--bg); transition: background 0.1s; }
+.data-table tbody tr:hover { background: var(--bg-hover); }
+
+.flag-col { font-size: 20px; line-height: 1; }
+
+.pop-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pop-bar-bg {
+  flex: 1;
+  height: 5px;
+  background: var(--bg-card);
+  border-radius: 4px;
+  overflow: hidden;
+  min-width: 60px;
+}
+
+.pop-bar-fill {
+  height: 100%;
+  background: var(--countries-hue);
+  border-radius: 4px;
+}
+
+.pop-number {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--fg-muted);
+  white-space: nowrap;
+}
+
+/* ── FX panel ──────────────────────────────────────────────────────── */
+.fx-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+}
+
+.fx-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  transition: background 0.1s;
+}
+
+.fx-card:hover { background: var(--bg-hover); }
+
+.fx-pair {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--fg-muted);
+  margin-bottom: 6px;
+}
+
+.fx-rate {
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--fx-hue);
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+.fx-label {
+  font-size: 11px;
+  color: var(--fg-dim);
+  margin-top: 4px;
+}
+
+/* ── Quality panel ─────────────────────────────────────────────────── */
+.quality-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.q-tile {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  text-align: center;
+}
+
+.q-big {
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.q-big.pass { color: var(--pass); }
+.q-big.warn { color: var(--warn); }
+.q-big.fail { color: var(--fail); }
+
+.q-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--fg-muted);
+  margin-top: 6px;
+  font-weight: 600;
+}
+
+.check-list { display: flex; flex-direction: column; gap: 6px; }
+
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+}
+
+.check-badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.check-badge.pass { background: rgba(52,211,153,0.12); color: var(--pass); }
+.check-badge.fail { background: rgba(248,113,113,0.12); color: var(--fail); }
+
+.check-name { color: var(--fg); min-width: 0; }
+.check-detail { margin-left: auto; font-size: 11px; color: var(--fg-muted); font-family: var(--mono); }
+
+/* ── Architecture diagram ─────────────────────────────────────────── */
+.arch-wrap {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px;
+  overflow-x: auto;
+}
+
+.arch-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  min-width: 600px;
+}
+
+.arch-source {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 140px;
+}
+
+.arch-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 7px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--fg-muted);
+  white-space: nowrap;
+}
+
+.arch-box .api-name { font-weight: 600; color: var(--fg); font-size: 12px; }
+.arch-box .api-type { color: var(--fg-dim); font-size: 10px; margin-top: 1px; }
+
+.arch-arrow {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 30px;
+}
+
+.arrow-line {
+  width: 100%;
+  height: 1.5px;
+  background: var(--border);
+  position: relative;
+}
+
+.arrow-line::after {
+  content: "▶";
+  position: absolute;
+  right: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 8px;
+  color: var(--fg-dim);
+}
+
+.arch-layer {
+  width: 110px;
+  text-align: center;
+}
+
+.arch-layer-box {
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 12px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.arch-layer-box.bronze   { background: rgba(248,113,113,0.08); border-color: rgba(248,113,113,0.3); color: #f87171; }
+.arch-layer-box.silver   { background: rgba(251,191,36,0.08);  border-color: rgba(251,191,36,0.3);  color: #fbbf24; }
+.arch-layer-box.gold     { background: rgba(52,211,153,0.08);  border-color: rgba(52,211,153,0.3);  color: var(--pass); }
+.arch-layer-box.output   { background: var(--accent-glow);     border-color: rgba(79,142,247,0.3);  color: var(--accent); }
+
+.arch-layer-sub {
+  font-size: 10px;
+  color: var(--fg-dim);
+  margin-top: 5px;
+}
+
+/* ── Footer ──────────────────────────────────────────────────────── */
+.site-footer {
+  border-top: 1px solid var(--border);
+  margin-top: 40px;
+  padding-top: 20px;
+  padding-bottom: max(24px, env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--fg-muted);
+}
+
+.footer-link {
+  color: var(--accent);
+  text-decoration: none;
+}
+.footer-link:hover { text-decoration: underline; }
+
+/* ── Loading state ─────────────────────────────────────────────────── */
+.loading-state {
+  text-align: center;
+  padding: 60px 24px;
+  color: var(--fg-muted);
+}
+
+.loading-spinner {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin-bottom: 12px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error-state {
+  background: rgba(248,113,113,0.06);
+  border: 1px solid rgba(248,113,113,0.25);
+  border-radius: 10px;
+  padding: 20px 24px;
+  color: var(--fail);
+  font-size: 13px;
+}
+
+/* ── Run info strip ─────────────────────────────────────────────────── */
+.run-strip {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: center;
+  margin-bottom: 24px;
+  font-size: 12px;
+}
+
+.run-item { display: flex; flex-direction: column; gap: 2px; }
+.run-key { color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.06em; font-size: 10px; font-weight: 600; }
+.run-val { color: var(--fg); font-family: var(--mono); font-size: 12px; }
+
+/* Responsive */
+@media (max-width: 600px) {
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .tab-btn { min-width: 80px; font-size: 12px; padding: 7px 10px; }
+  .city-temp { font-size: 28px; }
+  .arch-row { gap: 4px; }
+}
+</style>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="wordmark">
+      <div class="pipeline-icon">
+        <div class="pipe-node b"></div>
+        <div class="pipe-line"></div>
+        <div class="pipe-node s"></div>
+        <div class="pipe-line"></div>
+        <div class="pipe-node g"></div>
+      </div>
+      API Pipeline
+    </div>
+    <div class="header-right">
+      <div class="status-badge" id="headerStatus">
+        <div class="status-dot" id="headerDot"></div>
+        <span id="headerStatusText">Loading…</span>
+      </div>
+      <button class="theme-toggle" id="themeToggle" title="Toggle theme">☀</button>
+    </div>
+  </div>
+</header>
+
+<main class="page" id="pageRoot">
+  <div class="loading-state" id="loadingState">
+    <div class="loading-spinner"></div>
+    <div>Loading pipeline data…</div>
+  </div>
+</main>
+
+<script>
+// ── Theme toggle ───────────────────────────────────────────────────────
+const themeToggle = document.getElementById('themeToggle');
+let currentTheme = null;
+
+function applyTheme(t) {
+  if (t === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light');
+    themeToggle.textContent = '☽';
+  } else {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    themeToggle.textContent = '☀';
+  }
+  currentTheme = t;
+  try { localStorage.setItem('pipeline-theme', t); } catch(e) {}
+}
+
+try {
+  const saved = localStorage.getItem('pipeline-theme');
+  if (saved) applyTheme(saved);
+} catch(e) {}
+
+themeToggle.addEventListener('click', () => {
+  applyTheme(currentTheme === 'light' ? 'dark' : 'light');
+});
+
+// ── Tab state ─────────────────────────────────────────────────────────
+let activeTab = 'weather';
+
+function switchTab(name) {
+  activeTab = name;
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === name);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => {
+    p.classList.toggle('active', p.id === 'panel-' + name);
+  });
+  try { localStorage.setItem('pipeline-tab', name); } catch(e) {}
+}
+
+// ── Data loading ──────────────────────────────────────────────────────
+const BASE = './';
+
+async function loadJSON(path) {
+  const r = await fetch(BASE + path);
+  if (!r.ok) throw new Error(`${r.status} ${path}`);
+  return r.json();
+}
+
+const FLAG = {GB:'🇬🇧',US:'🇺🇸',DE:'🇩🇪',FR:'🇫🇷',NG:'🇳🇬',JP:'🇯🇵',AU:'🇦🇺',CA:'🇨🇦',SG:'🇸🇬',ZA:'🇿🇦'};
+
+const CURRENCY_NAME = {
+  USD:'US Dollar', EUR:'Euro', JPY:'Japanese Yen',
+  AUD:'Australian Dollar', CAD:'Canadian Dollar',
+  NGN:'Nigerian Naira', ZAR:'South African Rand',
+  SGD:'Singapore Dollar', INR:'Indian Rupee', CHF:'Swiss Franc'
+};
+
+const WX_CODE = {
+  0:'Clear sky', 1:'Mainly clear', 2:'Partly cloudy', 3:'Overcast',
+  45:'Foggy', 48:'Icy fog', 51:'Light drizzle', 53:'Drizzle',
+  55:'Heavy drizzle', 61:'Slight rain', 63:'Moderate rain', 65:'Heavy rain',
+  71:'Slight snow', 73:'Moderate snow', 75:'Heavy snow',
+  80:'Rain showers', 81:'Moderate showers', 82:'Violent showers',
+  95:'Thunderstorm', 96:'Thunderstorm + hail', 99:'Severe thunderstorm',
+};
+
+function fmtNum(n) {
+  if (n >= 1e9) return (n/1e9).toFixed(1) + 'B';
+  if (n >= 1e6) return (n/1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return (n/1e3).toFixed(1) + 'K';
+  return n.toLocaleString();
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleString('en-GB', { day:'2-digit', month:'short', year:'numeric',
+    hour:'2-digit', minute:'2-digit', timeZoneName:'short' });
+}
+
+function tempColor(t) {
+  if (t <= 5) return '#60b8f0';
+  if (t <= 12) return '#a3c4f3';
+  if (t <= 18) return '#fbbf24';
+  return '#f87171';
+}
+
+// ── Render ─────────────────────────────────────────────────────────────
+function renderStatGrid(weather, countries, fx, quality) {
+  const maxPop = Math.max(...countries.countries.map(c => c.population));
+  return `
+  <div class="stat-grid">
+    <div class="stat-tile weather">
+      <div class="tile-label">Avg Temp (5 UK cities)</div>
+      <div class="tile-value weather">${weather.avg_temp_c}°C</div>
+      <div class="tile-sub">↑ ${weather.max_temp_c}°C ${weather.hottest_city} · ↓ ${weather.min_temp_c}°C ${weather.coldest_city}</div>
+    </div>
+    <div class="stat-tile countries">
+      <div class="tile-label">Countries Tracked</div>
+      <div class="tile-value countries">${countries.country_count}</div>
+      <div class="tile-sub">Total pop: ${fmtNum(countries.total_population)}</div>
+    </div>
+    <div class="stat-tile fx">
+      <div class="tile-label">GBP/USD</div>
+      <div class="tile-value fx">${fx.rates.USD?.toFixed(4) ?? '—'}</div>
+      <div class="tile-sub">EUR ${fx.rates.EUR?.toFixed(4)} · JPY ${fx.rates.JPY?.toFixed(2)}</div>
+    </div>
+    <div class="stat-tile quality">
+      <div class="tile-label">Quality Pass Rate</div>
+      <div class="tile-value quality">${quality.pass_rate}%</div>
+      <div class="tile-sub">${quality.passed}/${quality.total} checks passed</div>
+    </div>
+  </div>`;
+}
+
+function renderRunStrip(manifest) {
+  const src = manifest.sources;
+  const allOk = Object.values(src).every(s => s.status === 'ok');
+  const dot = document.getElementById('headerDot');
+  const txt = document.getElementById('headerStatusText');
+  if (!allOk) { dot.className = 'status-dot warn'; txt.textContent = 'Partial'; }
+  else { dot.className = 'status-dot'; txt.textContent = 'All sources OK'; }
+
+  return `
+  <div class="run-strip">
+    <div class="run-item"><div class="run-key">Last Run</div><div class="run-val">${fmtDate(manifest.last_run)}</div></div>
+    <div class="run-item"><div class="run-key">Weather</div><div class="run-val" style="color:${src.weather.status==='ok'?'var(--pass)':'var(--fail)'}">${src.weather.status.toUpperCase()}</div></div>
+    <div class="run-item"><div class="run-key">Countries</div><div class="run-val" style="color:${src.countries.status==='ok'?'var(--pass)':'var(--fail)'}">${src.countries.status.toUpperCase()}</div></div>
+    <div class="run-item"><div class="run-key">FX Rates</div><div class="run-val" style="color:${src.fx.status==='ok'?'var(--pass)':'var(--fail)'}">${src.fx.status.toUpperCase()}</div></div>
+    <div class="run-item"><div class="run-key">Bronze Files</div><div class="run-val">${manifest.bronze_files?.length ?? 0}</div></div>
+  </div>`;
+}
+
+function renderWeatherPanel(data) {
+  const minT = data.min_temp_c, maxT = data.max_temp_c;
+  const range = maxT - minT || 1;
+  const cards = data.cities.map(c => {
+    const pct = Math.round(((c.temperature_c - minT) / range) * 100);
+    const wx = WX_CODE[c.weathercode] ?? `Code ${c.weathercode}`;
+    return `
+    <div class="city-card">
+      <div class="city-name">${c.city.charAt(0).toUpperCase() + c.city.slice(1)}</div>
+      <div class="city-temp" style="color:${tempColor(c.temperature_c)}">${c.temperature_c}<span class="unit">°C</span></div>
+      <div class="city-wind">↗ ${c.windspeed_kmh} km/h · ${wx}</div>
+      <div class="temp-bar-wrap"><div class="temp-bar-fill" style="width:${pct}%;background:${tempColor(c.temperature_c)}"></div></div>
+    </div>`;
+  }).join('');
+  return `
+  <div class="section-header">
+    <div class="section-title">UK City Weather</div>
+    <div class="section-meta">Open-Meteo API · ${data.city_count} cities · updated ${fmtDate(data.generated_at)}</div>
+  </div>
+  <div class="cards-grid">${cards}</div>`;
+}
+
+function renderCountriesPanel(data) {
+  const maxPop = Math.max(...data.countries.map(c => c.population));
+  const rows = data.countries.map(c => {
+    const pct = Math.round((c.population / maxPop) * 100);
+    return `<tr>
+      <td class="flag-col">${FLAG[c.cca2] ?? c.cca2}</td>
+      <td><strong>${c.name}</strong><br><span style="font-size:11px;color:var(--fg-muted)">${c.capital}</span></td>
+      <td style="color:var(--fg-muted)">${c.region}</td>
+      <td>
+        <div class="pop-bar-wrap">
+          <div class="pop-bar-bg"><div class="pop-bar-fill" style="width:${pct}%"></div></div>
+          <span class="pop-number">${fmtNum(c.population)}</span>
+        </div>
+      </td>
+      <td style="font-variant-numeric:tabular-nums;color:var(--fg-muted)">${c.pop_density?.toLocaleString('en-GB', {maximumFractionDigits:1}) ?? '—'}/km²</td>
+      <td style="color:var(--fg-muted)">${c.currencies?.join(', ') ?? '—'}</td>
+    </tr>`;
+  }).join('');
+  return `
+  <div class="section-header">
+    <div class="section-title">Country Reference Data</div>
+    <div class="section-meta">REST Countries API · ${data.country_count} countries · ${fmtNum(data.total_population)} total pop</div>
+  </div>
+  <div class="data-table-wrap">
+    <table class="data-table">
+      <thead><tr>
+        <th></th><th>Country</th><th>Region</th><th>Population</th><th>Density</th><th>Currency</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
+}
+
+function renderFXPanel(data) {
+  const cards = Object.entries(data.rates).map(([code, rate]) => {
+    const name = CURRENCY_NAME[code] ?? code;
+    return `
+    <div class="fx-card">
+      <div class="fx-pair">GBP / ${code}</div>
+      <div class="fx-rate">${rate.toFixed(4)}</div>
+      <div class="fx-label">${name}</div>
+    </div>`;
+  }).join('');
+  return `
+  <div class="section-header">
+    <div class="section-title">GBP Exchange Rates</div>
+    <div class="section-meta">ExchangeRate-API · base GBP · ${data.last_updated ?? ''}</div>
+  </div>
+  <div class="fx-grid">${cards}</div>`;
+}
+
+function renderQualityPanel(data) {
+  const checks = data.checks.map(c => `
+  <div class="check-item">
+    <span class="check-badge ${c.status.toLowerCase()}">${c.status}</span>
+    <span class="check-name">${c.name}</span>
+    ${c.detail ? `<span class="check-detail">${c.detail}</span>` : ''}
+  </div>`).join('');
+
+  return `
+  <div class="section-header">
+    <div class="section-title">Data Quality Report</div>
+    <div class="section-meta">${data.total} checks · generated ${fmtDate(data.generated_at)}</div>
+  </div>
+  <div class="quality-summary">
+    <div class="q-tile"><div class="q-big pass">${data.passed}</div><div class="q-label">Passed</div></div>
+    <div class="q-tile"><div class="q-big fail">${data.failed}</div><div class="q-label">Failed</div></div>
+    <div class="q-tile"><div class="q-big ${data.pass_rate === 100 ? 'pass' : 'warn'}">${data.pass_rate}%</div><div class="q-label">Pass Rate</div></div>
+    <div class="q-tile"><div class="q-big" style="color:var(--accent)">${data.total}</div><div class="q-label">Total Checks</div></div>
+  </div>
+  <div class="check-list">${checks}</div>`;
+}
+
+function renderArchPanel() {
+  return `
+  <div class="section-header">
+    <div class="section-title">Pipeline Architecture</div>
+    <div class="section-meta">Bronze / Silver / Gold medallion pattern</div>
+  </div>
+  <div class="arch-wrap">
+    <div class="arch-row">
+      <div class="arch-source">
+        <div class="arch-box"><div class="api-name">Open-Meteo</div><div class="api-type">REST · No auth</div></div>
+        <div class="arch-box"><div class="api-name">REST Countries</div><div class="api-type">REST · No auth</div></div>
+        <div class="arch-box"><div class="api-name">ExchangeRate-API</div><div class="api-type">REST · No auth</div></div>
+      </div>
+      <div class="arch-arrow"><div class="arrow-line"></div></div>
+      <div class="arch-layer">
+        <div class="arch-layer-box bronze">Bronze</div>
+        <div class="arch-layer-sub">Raw JSON<br>timestamped</div>
+      </div>
+      <div class="arch-arrow"><div class="arrow-line"></div></div>
+      <div class="arch-layer">
+        <div class="arch-layer-box silver">Silver</div>
+        <div class="arch-layer-sub">Flattened<br>typed fields</div>
+      </div>
+      <div class="arch-arrow"><div class="arrow-line"></div></div>
+      <div class="arch-layer">
+        <div class="arch-layer-box gold">Gold</div>
+        <div class="arch-layer-sub">Aggregated<br>summaries</div>
+      </div>
+      <div class="arch-arrow"><div class="arrow-line"></div></div>
+      <div class="arch-layer">
+        <div class="arch-layer-box output">Dashboard</div>
+        <div class="arch-layer-sub">GitHub Pages<br>live view</div>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:20px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;">
+    <div class="section-header" style="margin-bottom:12px"><div class="section-title" style="font-size:14px">Design decisions</div></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;font-size:13px;color:var(--fg-muted)">
+      <div><strong style="color:var(--fg);display:block;margin-bottom:3px">Three sources, zero API keys</strong>All three APIs are public, no-auth endpoints. The pipeline runs anywhere with <code style="font-family:var(--mono);font-size:11px;background:var(--bg-card);padding:1px 4px;border-radius:3px">python pipeline.py</code>.</div>
+      <div><strong style="color:var(--fg);display:block;margin-bottom:3px">Retry with exponential back-off</strong>Each fetch retries up to 3 times with 2ⁿ-second delays, logging every attempt so failures are traceable.</div>
+      <div><strong style="color:var(--fg);display:block;margin-bottom:3px">19 pytest unit tests</strong>Tests cover fetch retries, Bronze I/O, all three transforms, and the quality checker — using monkeypatching so no network calls are needed.</div>
+      <div><strong style="color:var(--fg);display:block;margin-bottom:3px">GitHub Actions CI</strong>The test suite runs on every push. The dashboard shows the most recent seeded Gold data; run <code style="font-family:var(--mono);font-size:11px;background:var(--bg-card);padding:1px 4px;border-radius:3px">pipeline.py</code> locally to refresh.</div>
+    </div>
+  </div>`;
+}
+
+// ── Main bootstrap ─────────────────────────────────────────────────────
+async function main() {
+  const root = document.getElementById('pageRoot');
+  const loading = document.getElementById('loadingState');
+
+  try {
+    const [manifest, weather, countries, fx, quality] = await Promise.all([
+      loadJSON('pipeline_manifest.json'),
+      loadJSON('gold/weather_summary.json'),
+      loadJSON('gold/countries_summary.json'),
+      loadJSON('gold/fx_summary.json'),
+      loadJSON('gold/quality_report.json'),
+    ]);
+
+    loading.remove();
+
+    try {
+      const saved = localStorage.getItem('pipeline-tab');
+      if (['weather','countries','fx','quality','arch'].includes(saved)) activeTab = saved;
+    } catch(e) {}
+
+    root.innerHTML = `
+      ${renderRunStrip(manifest)}
+      ${renderStatGrid(weather, countries, fx, quality)}
+      <div class="tab-bar" role="tablist">
+        <button class="tab-btn weather ${activeTab==='weather'?'active':''}" data-tab="weather">🌤 Weather</button>
+        <button class="tab-btn countries ${activeTab==='countries'?'active':''}" data-tab="countries">🌍 Countries</button>
+        <button class="tab-btn fx ${activeTab==='fx'?'active':''}" data-tab="fx">💱 FX Rates</button>
+        <button class="tab-btn quality ${activeTab==='quality'?'active':''}" data-tab="quality">✓ Quality</button>
+        <button class="tab-btn ${activeTab==='arch'?'active':''}" data-tab="arch">⬡ Architecture</button>
+      </div>
+      <div id="panel-weather" class="tab-panel ${activeTab==='weather'?'active':''}">${renderWeatherPanel(weather)}</div>
+      <div id="panel-countries" class="tab-panel ${activeTab==='countries'?'active':''}">${renderCountriesPanel(countries)}</div>
+      <div id="panel-fx" class="tab-panel ${activeTab==='fx'?'active':''}">${renderFXPanel(fx)}</div>
+      <div id="panel-quality" class="tab-panel ${activeTab==='quality'?'active':''}">${renderQualityPanel(quality)}</div>
+      <div id="panel-arch" class="tab-panel ${activeTab==='arch'?'active':''}">${renderArchPanel()}</div>
+      <footer class="site-footer">
+        <span>Olayinka Bello · <a class="footer-link" href="https://linkedin.com/in/olayinka-bello-mba-04960b12a" target="_blank">LinkedIn</a> · <a class="footer-link" href="https://github.com/Olayinka08/api-data-pipeline" target="_blank">GitHub</a></span>
+        <span style="color:var(--fg-dim)">Data pipeline portfolio project · Python 3 · Bronze/Silver/Gold medallion</span>
+      </footer>`;
+
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    });
+
+  } catch (err) {
+    loading.innerHTML = `<div class="error-state">
+      <strong>Could not load pipeline data</strong><br><br>
+      ${err.message}<br><br>
+      Run <code style="font-family:var(--mono);font-size:11px">python seed_demo_data.py</code> to generate Gold files,
+      then push to GitHub Pages.
+    </div>`;
+    document.getElementById('headerDot').className = 'status-dot fail';
+    document.getElementById('headerStatusText').textContent = 'Data missing';
+  }
+}
+
+main();
+</script>

@@ -1,0 +1,72 @@
+[
+  {
+    "base": "GBP",
+    "target": "USD",
+    "rate": 1.2748,
+    "last_updated": "Thu, 22 Oct 2026 00:02:01 +0000",
+    "ingested_at": "2026-10-22T10:52:51.670953+00:00"
+  },
+  {
+    "base": "GBP",
+    "target": "EUR",
+    "rate": 1.1712,
+    "last_updated": "Thu, 22 Oct 2026 00:02:01 +0000",
+    "ingested_at": "2026-10-22T10:52:51.670953+00:00"
+  },
+  {
+    "base": "GBP",
+    "target": "JPY",
+    "rate": 193.42,
+    "last_updated": "Thu, 22 Oct 2026 00:02:01 +0000",
+    "ingested_at": "2026-10-22T10:52:51.670953+00:00"
+  },
+  {
+    "base": "GBP",
+    "target": "AUD",
+    "rate": 1.9613,
+    "last_updated": "Thu, 22 Oct 2026 00:02:01 +0000",
+    "ingested_at": "2026-10-22T10:52:51.670953+00:00"
+  },
+  {
+    "base": "GBP",
+    "target": "CAD",
+    "rate": 1.7398,
+    "last_updated": "Thu, 22 Oct 2026 00:02:01 +0000",
+    "ingested_at": "2026-10-22T10:52:51.670953+00:00"
+  },
+  {
+    "base": "GBP",
+    "target": "NGN",
+    "rate": 2052.18,
+    "last_updated": "Thu, 22 Oct 2026 00:02:01 +0000",
+    "ingested_at": "2026-10-22T10:52:51.670953+00:00"
+  },
+  {
+    "base": "GBP",
+    "target": "ZAR",
+    "rate": 23.47,
+    "last_updated": "Thu, 22 Oct 2026 00:02:01 +0000",
+    "ingested_at": "2026-10-22T10:52:51.670953+00:00"
+  },
+  {
+    "base": "GBP",
+    "target": "SGD",
+    "rate": 1.7141,
+    "last_updated": "Thu, 22 Oct 2026 00:02:01 +0000",
+    "ingested_at": "2026-10-22T10:52:51.670953+00:00"
+  },
+  {
+    "base": "GBP",
+    "target": "INR",
+    "rate": 106.94,
+    "last_updated": "Thu, 22 Oct 2026 00:02:01 +0000",
+    "ingested_at": "2026-10-22T10:52:51.670953+00:00"
+  },
+  {
+    "base": "GBP",
+    "target": "CHF",
+    "rate": 1.1289,
+    "last_updated": "Thu, 22 Oct 2026 00:02:01 +0000",
+    "ingested_at": "2026-10-22T10:52:51.670953+00:00"
+  }
+]

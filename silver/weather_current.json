@@ -1,0 +1,47 @@
+[
+  {
+    "city": "london",
+    "temperature_c": 13.4,
+    "windspeed_kmh": 22.1,
+    "weathercode": 3,
+    "is_day": true,
+    "ingested_at": "2026-10-22T10:52:51.670953+00:00",
+    "source_file": "demo"
+  },
+  {
+    "city": "manchester",
+    "temperature_c": 11.8,
+    "windspeed_kmh": 28.3,
+    "weathercode": 61,
+    "is_day": true,
+    "ingested_at": "2026-10-22T10:52:51.670953+00:00",
+    "source_file": "demo"
+  },
+  {
+    "city": "birmingham",
+    "temperature_c": 12.5,
+    "windspeed_kmh": 18.7,
+    "weathercode": 2,
+    "is_day": true,
+    "ingested_at": "2026-10-22T10:52:51.670953+00:00",
+    "source_file": "demo"
+  },
+  {
+    "city": "edinburgh",
+    "temperature_c": 9.2,
+    "windspeed_kmh": 35.6,
+    "weathercode": 71,
+    "is_day": true,
+    "ingested_at": "2026-10-22T10:52:51.670953+00:00",
+    "source_file": "demo"
+  },
+  {
+    "city": "bristol",
+    "temperature_c": 14.1,
+    "windspeed_kmh": 15.4,
+    "weathercode": 1,
+    "is_day": true,
+    "ingested_at": "2026-10-22T10:52:51.670953+00:00",
+    "source_file": "demo"
+  }
+]

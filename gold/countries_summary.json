@@ -1,0 +1,187 @@
+{
+  "generated_at": "2026-10-22T10:52:51.670953+00:00",
+  "country_count": 10,
+  "total_population": 1008514704,
+  "largest_by_population": "United States",
+  "largest_by_area": "Canada",
+  "most_dense": "Singapore",
+  "countries": [
+    {
+      "cca2": "GB",
+      "name": "United Kingdom",
+      "capital": "London",
+      "region": "Europe",
+      "subregion": "Northern Europe",
+      "population": 67215293,
+      "area_km2": 242900,
+      "pop_density": 276.7,
+      "currencies": [
+        "GBP"
+      ],
+      "languages": [
+        "English"
+      ],
+      "ingested_at": "2026-10-22T10:52:51.670953+00:00"
+    },
+    {
+      "cca2": "US",
+      "name": "United States",
+      "capital": "Washington D.C.",
+      "region": "Americas",
+      "subregion": "North America",
+      "population": 329484123,
+      "area_km2": 9372610,
+      "pop_density": 35.2,
+      "currencies": [
+        "USD"
+      ],
+      "languages": [
+        "English"
+      ],
+      "ingested_at": "2026-10-22T10:52:51.670953+00:00"
+    },
+    {
+      "cca2": "DE",
+      "name": "Germany",
+      "capital": "Berlin",
+      "region": "Europe",
+      "subregion": "Western Europe",
+      "population": 83783942,
+      "area_km2": 357114,
+      "pop_density": 234.6,
+      "currencies": [
+        "EUR"
+      ],
+      "languages": [
+        "German"
+      ],
+      "ingested_at": "2026-10-22T10:52:51.670953+00:00"
+    },
+    {
+      "cca2": "FR",
+      "name": "France",
+      "capital": "Paris",
+      "region": "Europe",
+      "subregion": "Western Europe",
+      "population": 67391582,
+      "area_km2": 551695,
+      "pop_density": 122.2,
+      "currencies": [
+        "EUR"
+      ],
+      "languages": [
+        "French"
+      ],
+      "ingested_at": "2026-10-22T10:52:51.670953+00:00"
+    },
+    {
+      "cca2": "NG",
+      "name": "Nigeria",
+      "capital": "Abuja",
+      "region": "Africa",
+      "subregion": "Western Africa",
+      "population": 206139589,
+      "area_km2": 923768,
+      "pop_density": 223.2,
+      "currencies": [
+        "NGN"
+      ],
+      "languages": [
+        "English"
+      ],
+      "ingested_at": "2026-10-22T10:52:51.670953+00:00"
+    },
+    {
+      "cca2": "JP",
+      "name": "Japan",
+      "capital": "Tokyo",
+      "region": "Asia",
+      "subregion": "Eastern Asia",
+      "population": 125836021,
+      "area_km2": 377930,
+      "pop_density": 332.9,
+      "currencies": [
+        "JPY"
+      ],
+      "languages": [
+        "Japanese"
+      ],
+      "ingested_at": "2026-10-22T10:52:51.670953+00:00"
+    },
+    {
+      "cca2": "AU",
+      "name": "Australia",
+      "capital": "Canberra",
+      "region": "Oceania",
+      "subregion": "Australia and NZ",
+      "population": 25499884,
+      "area_km2": 7692024,
+      "pop_density": 3.3,
+      "currencies": [
+        "AUD"
+      ],
+      "languages": [
+        "English"
+      ],
+      "ingested_at": "2026-10-22T10:52:51.670953+00:00"
+    },
+    {
+      "cca2": "CA",
+      "name": "Canada",
+      "capital": "Ottawa",
+      "region": "Americas",
+      "subregion": "North America",
+      "population": 38005238,
+      "area_km2": 9984670,
+      "pop_density": 3.8,
+      "currencies": [
+        "CAD"
+      ],
+      "languages": [
+        "English",
+        "French"
+      ],
+      "ingested_at": "2026-10-22T10:52:51.670953+00:00"
+    },
+    {
+      "cca2": "SG",
+      "name": "Singapore",
+      "capital": "Singapore",
+      "region": "Asia",
+      "subregion": "South-Eastern Asia",
+      "population": 5850342,
+      "area_km2": 710,
+      "pop_density": 8240.0,
+      "currencies": [
+        "SGD"
+      ],
+      "languages": [
+        "English",
+        "Malay",
+        "Tamil",
+        "Mandarin"
+      ],
+      "ingested_at": "2026-10-22T10:52:51.670953+00:00"
+    },
+    {
+      "cca2": "ZA",
+      "name": "South Africa",
+      "capital": "Pretoria",
+      "region": "Africa",
+      "subregion": "Southern Africa",
+      "population": 59308690,
+      "area_km2": 1219090,
+      "pop_density": 48.7,
+      "currencies": [
+        "ZAR"
+      ],
+      "languages": [
+        "Zulu",
+        "Xhosa",
+        "Afrikaans",
+        "English"
+      ],
+      "ingested_at": "2026-10-22T10:52:51.670953+00:00"
+    }
+  ]
+}

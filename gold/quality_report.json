@@ -1,0 +1,74 @@
+{
+  "generated_at": "2026-10-22T10:52:51.670953+00:00",
+  "passed": 17,
+  "failed": 0,
+  "total": 17,
+  "pass_rate": 100.0,
+  "checks": [
+    {
+      "name": "weather: row count == 5",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "weather: no null temperatures",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "weather: temps in plausible range",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "weather: all 5 cities present",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "countries: row count == 10",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "countries: no null names",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "countries: no null populations",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "countries: positive populations",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "countries: gb present",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "fx: at least 8 rates returned",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "fx: no null rates",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "fx: positive rates",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "fx: USD rate in plausible range",
+      "status": "PASS",
+      "detail": "USD = 1.2748"
+    }
+  ]
+}
